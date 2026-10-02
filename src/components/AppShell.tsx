@@ -1,5 +1,5 @@
-import { useEffect, useState, type ComponentType, type SVGProps } from 'react';
-import { Link, Navigate, Outlet, useLocation } from '@tanstack/react-router';
+import { useEffect, useRef, useState, type ComponentType, type SVGProps } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../auth/AuthProvider';
 import { supabase } from '../lib/supabase';
 import { detectTimeZone } from '../features/settings/useProfile';
@@ -14,8 +14,23 @@ const NAV: { to: '/trading' | '/journal' | '/settings'; label: string; icon: Com
 
 export function AppShell() {
   const { user, loading, signOut } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const [signingOut, setSigningOut] = useState(false);
+  const redirectedRef = useRef(false);
+
+  // Navigate in an effect — never during render — to avoid an infinite update loop.
+  // Use href (string). location.search is a parsed object and must not be stringified.
+  useEffect(() => {
+    if (loading || user || redirectedRef.current) return;
+    redirectedRef.current = true;
+    const redirect = location.href.startsWith('/login') ? '/trading' : location.href;
+    void navigate({
+      to: '/login',
+      search: { redirect },
+      replace: true,
+    });
+  }, [loading, user, navigate, location.href]);
 
   // New profiles start in UTC; adopt the browser's zone so reminders arrive at the right local hour.
   useEffect(() => {
@@ -25,8 +40,7 @@ export function AppShell() {
     void supabase.from('profiles').update({ timezone: tz }).eq('id', user.id).eq('timezone', 'UTC');
   }, [user?.id]);
 
-  if (loading) return <Spinner />;
-  if (!user) return <Navigate to="/login" search={{ redirect: location.href }} replace />;
+  if (loading || !user) return <Spinner />;
 
   const avatar = typeof user.user_metadata?.avatar_url === 'string' ? user.user_metadata.avatar_url : null;
   const name = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? 'Account';
@@ -47,7 +61,9 @@ export function AppShell() {
                 key={item.to}
                 to={item.to}
                 className="rounded-lg px-3 py-1.5 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white"
-                activeProps={{ className: 'bg-white/[0.06] text-white' }}
+                activeProps={{
+                  className: 'rounded-lg bg-white/[0.06] px-3 py-1.5 text-sm text-white transition',
+                }}
               >
                 {item.label}
               </Link>
@@ -89,7 +105,7 @@ export function AppShell() {
               key={to}
               to={to}
               className="flex flex-col items-center gap-1 py-2.5 text-[11px] text-slate-500"
-              activeProps={{ className: 'text-sky-300' }}
+              activeProps={{ className: 'flex flex-col items-center gap-1 py-2.5 text-[11px] text-sky-300' }}
             >
               <Icon width={20} height={20} />
               {label}

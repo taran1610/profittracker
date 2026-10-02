@@ -5,17 +5,25 @@ import { GoogleIcon } from '../components/icons';
 import { Spinner } from '../components/Panel';
 import { errorMessage } from '../lib/format';
 
+function safeTarget(value: string | undefined): string {
+  if (!value) return '/trading';
+  if (!value.startsWith('/') || value.startsWith('//') || value.startsWith('/login')) return '/trading';
+  return value;
+}
+
 export function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
-  const { redirect } = useSearch({ strict: false }) as { redirect?: string };
-  const target = redirect ?? '/trading';
+  const { redirect } = useSearch({ from: '/login' });
+  const target = safeTarget(redirect);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) router.history.replace(target);
-  }, [user, router, target]);
+    if (!loading && user) {
+      router.history.replace(target);
+    }
+  }, [loading, user, router, target]);
 
   if (loading || user) return <Spinner />;
 
