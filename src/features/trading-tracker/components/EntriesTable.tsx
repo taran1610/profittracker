@@ -59,8 +59,9 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-white/10 px-4 py-10 text-center text-sm text-slate-500">
-        No entries yet. Add your first payout or eval fee to get started.
+      <div className="rounded-xl border border-dashed border-white/10 px-4 py-10 text-center text-sm text-slate-400">
+        No entries yet. Use <span className="font-semibold text-white">Add payout</span> or{' '}
+        <span className="font-semibold text-white">Add eval fee</span> above.
       </div>
     );
   }
@@ -81,7 +82,7 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
           } ${align === 'right' ? 'flex-row-reverse' : ''}`}
         >
           {label}
-          <SortIcon direction={active ? sort.dir : null} />
+          <SortIcon sortDir={active ? sort.dir : null} />
         </button>
       </th>
     );
@@ -90,9 +91,9 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
   return (
     <>
       {/* Desktop / tablet */}
-      <div className="hidden overflow-hidden rounded-xl border border-white/[0.06] md:block">
+      <div className="hidden overflow-hidden rounded-xl border border-line md:block">
         <table className="w-full table-fixed text-sm">
-          <thead className="bg-white/[0.02] text-xs text-slate-400">
+          <thead className="bg-chip text-xs text-subtle">
             <tr>
               {header('date', 'Date', 'w-36')}
               {header('type', 'Type', 'w-32')}
@@ -103,22 +104,22 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.04]">
+          <tbody className="divide-y divide-[var(--line)]">
             {sorted.map((entry) => (
-              <tr key={entry.id} className="transition hover:bg-white/[0.02]">
-                <td className="px-4 py-3 whitespace-nowrap text-slate-300 tabular-nums">{formatDate(entry.date)}</td>
+              <tr key={entry.id} className="transition bg-hover">
+                <td className="px-4 py-3 whitespace-nowrap text-fg tabular-nums">{formatDate(entry.date)}</td>
                 <td className="px-4 py-3">
                   <TypePill entry={entry} />
                 </td>
                 <td
                   className={`px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums ${
-                    entry.type === 'payout' ? 'text-emerald-300' : 'text-rose-300'
+                    entry.type === 'payout' ? 'text-gain' : 'text-loss'
                   }`}
                 >
                   {formatSignedMoney(signedCents(entry))}
                 </td>
-                <td className="truncate px-4 py-3 text-slate-400" title={entry.notes || undefined}>
-                  {entry.notes || <span className="text-slate-600">—</span>}
+                <td className="truncate px-4 py-3 text-muted" title={entry.notes || undefined}>
+                  {entry.notes || <span className="text-subtle">—</span>}
                 </td>
                 <td className="px-4 py-2 text-right">
                   <RowActions entry={entry} onEdit={onEdit} onDelete={onDelete} />
@@ -131,7 +132,7 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
 
       {/* Mobile */}
       <div className="md:hidden">
-        <label className="mb-3 flex items-center justify-between gap-3 text-xs text-slate-400">
+        <label className="mb-3 flex items-center justify-between gap-3 text-xs text-muted">
           Sort by
           <select
             value={`${sort.key}:${sort.dir}`}
@@ -139,7 +140,7 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
               const [key, dir] = e.target.value.split(':') as [SortKey, SortDir];
               setSort({ key, dir });
             }}
-            className="rounded-lg border border-white/10 bg-[#070c17] px-2.5 py-1.5 text-xs text-slate-200 focus:border-sky-400/60 focus:outline-none"
+            className="rounded-lg border border-line bg-input px-2.5 py-1.5 text-xs text-fg focus:border-sky-400/60 focus:outline-none"
           >
             {MOBILE_SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -150,24 +151,24 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
         </label>
         <ul className="space-y-2">
           {sorted.map((entry) => (
-            <li key={entry.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3.5">
+            <li key={entry.id} className="rounded-xl border border-line bg-chip p-3.5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <TypePill entry={entry} />
-                    <span className="text-xs text-slate-500 tabular-nums">{formatDate(entry.date)}</span>
+                    <span className="text-xs text-subtle tabular-nums">{formatDate(entry.date)}</span>
                   </div>
-                  {entry.notes && <p className="mt-2 text-sm break-words text-slate-400">{entry.notes}</p>}
+                  {entry.notes && <p className="mt-2 text-sm break-words text-muted">{entry.notes}</p>}
                 </div>
                 <div className="text-right">
                   <p
                     className={`font-semibold whitespace-nowrap tabular-nums ${
-                      entry.type === 'payout' ? 'text-emerald-300' : 'text-rose-300'
+                      entry.type === 'payout' ? 'text-gain' : 'text-loss'
                     }`}
                   >
                     {formatSignedMoney(signedCents(entry))}
                   </p>
-                  <p className="text-[10px] text-slate-500 uppercase">Before tax</p>
+                  <p className="text-[10px] text-subtle uppercase">Before tax</p>
                 </div>
               </div>
               <div className="mt-2 flex justify-end">
@@ -211,7 +212,7 @@ function RowActions({
         type="button"
         onClick={() => onEdit(entry)}
         aria-label={`Edit ${label}`}
-        className="rounded-lg p-2 text-slate-400 transition hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-sky-400/50 focus-visible:outline-none"
+        className="rounded-lg p-2 text-muted transition bg-hover focus-visible:ring-2 focus-visible:ring-sky-400/50 focus-visible:outline-none"
       >
         <PencilIcon />
       </button>
@@ -219,7 +220,7 @@ function RowActions({
         type="button"
         onClick={() => onDelete(entry)}
         aria-label={`Delete ${label}`}
-        className="rounded-lg p-2 text-slate-400 transition hover:bg-rose-500/10 hover:text-rose-300 focus-visible:ring-2 focus-visible:ring-rose-400/50 focus-visible:outline-none"
+        className="rounded-lg p-2 text-muted transition hover:bg-rose-500/10 hover:text-rose-600 focus-visible:ring-2 focus-visible:ring-rose-400/50 focus-visible:outline-none"
       >
         <TrashIcon />
       </button>

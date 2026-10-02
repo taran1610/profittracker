@@ -1,5 +1,6 @@
-import { Link, Outlet, createRootRoute, createRoute, createRouter, redirect } from '@tanstack/react-router';
+import { Link, Outlet, createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
 import { AppShell } from './components/AppShell';
+import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { TradingTrackerPage } from './features/trading-tracker/TradingTrackerPage';
 import { JournalPage } from './features/journal/JournalPage';
@@ -18,13 +19,19 @@ const rootRoute = createRootRoute({
   notFoundComponent: () => (
     <div className="grid min-h-dvh place-items-center px-4 text-center">
       <div>
-        <p className="text-sm text-slate-400">Page not found.</p>
-        <Link to="/trading" className="mt-3 inline-block text-sm text-sky-300 hover:underline">
-          Go to the tracker
+        <p className="text-sm text-muted">Page not found.</p>
+        <Link to="/" className="mt-3 inline-block text-sm text-accent hover:underline">
+          Go home
         </Link>
       </div>
     </div>
   ),
+});
+
+const landingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: LandingPage,
 });
 
 const loginRoute = createRoute({
@@ -40,14 +47,6 @@ const appRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'app',
   component: AppShell,
-});
-
-const indexRoute = createRoute({
-  getParentRoute: () => appRoute,
-  path: '/',
-  beforeLoad: () => {
-    throw redirect({ to: '/trading' });
-  },
 });
 
 const trackerRoute = createRoute({
@@ -72,8 +71,9 @@ const settingsRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
+  landingRoute,
   loginRoute,
-  appRoute.addChildren([indexRoute, trackerRoute, journalRoute, settingsRoute]),
+  appRoute.addChildren([trackerRoute, journalRoute, settingsRoute]),
 ]);
 
 export const router = createRouter({ routeTree });

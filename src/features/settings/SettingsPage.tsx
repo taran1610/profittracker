@@ -1,9 +1,12 @@
 import { useId, useMemo, useState, type FormEvent } from 'react';
 import { useRequiredUser } from '../../auth/AuthProvider';
 import { LoadError, Panel, Spinner } from '../../components/Panel';
+import { ThemePicker } from '../../components/ThemeToggle';
+import { friendlyError } from '../../lib/errors';
 import { errorMessage, formatHour } from '../../lib/format';
 import { inputClass, primaryButtonClass } from '../../lib/styles';
 import { detectTimeZone, useProfile, type Profile, type ReminderFrequency } from './useProfile';
+import { useTheme } from '../../theme/ThemeProvider';
 
 const FREQUENCIES: { value: ReminderFrequency; label: string; description: string }[] = [
   { value: 'weekdays', label: 'Weekdays', description: 'Monday to Friday' },
@@ -47,14 +50,15 @@ export function SettingsPage() {
   return (
     <>
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Settings</h1>
-        <p className="mt-1 text-sm text-slate-400">Signed in as {user.email}</p>
+        <p className="text-xs font-semibold tracking-[0.18em] text-sky-600 uppercase">Account</p>
+        <h1 className="font-display mt-1 text-2xl font-bold tracking-tight text-fg sm:text-3xl">Settings</h1>
+        <p className="mt-1 text-sm text-muted">Signed in as {user.email}</p>
       </header>
 
       {status === 'loading' && <Spinner label="Loading settings…" />}
       {status === 'error' && (
         <div className="mt-8">
-          <LoadError message={loadError ?? 'Unknown error'} onRetry={reload} />
+          <LoadError message={friendlyError(loadError)} onRetry={reload} />
         </div>
       )}
       {status === 'ready' && profile && <SettingsForm initial={profile} email={user.email ?? ''} onSave={save} />}
@@ -91,7 +95,7 @@ function SettingsForm({
       await onSave(draft);
       setMessage({ kind: 'ok', text: 'Settings saved.' });
     } catch (err) {
-      setMessage({ kind: 'error', text: errorMessage(err) });
+      setMessage({ kind: 'error', text: friendlyError(err) || errorMessage(err) });
     } finally {
       setSaving(false);
     }
@@ -99,10 +103,16 @@ function SettingsForm({
 
   const remindersOn = draft.reminderFrequency !== 'off';
 
+  const { resolved } = useTheme();
+
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <Panel title="Profile" className="mt-8">
-        <label htmlFor={ids.name} className="mb-1.5 block text-xs font-medium text-slate-400">
+      <Panel title="Appearance" subtitle={`Currently using ${resolved} mode`} className="mt-8">
+        <ThemePicker />
+      </Panel>
+
+      <Panel title="Profile">
+        <label htmlFor={ids.name} className="mb-1.5 block text-sm font-medium text-muted">
           Display name
         </label>
         <input
@@ -117,12 +127,12 @@ function SettingsForm({
       </Panel>
 
       <Panel
-        title="Journal reminder emails"
-        subtitle={`Sent to ${email}. Skipped automatically on days you've already journaled.`}
+        title="Reminder emails"
+        subtitle={`We'll email ${email} to log profit or loss. Skipped if you already journaled that day.`}
       >
         <fieldset>
-          <legend className="mb-1.5 text-xs font-medium text-slate-400">How often</legend>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup">
+          <legend className="mb-2 text-sm font-medium text-slate-300">How often?</legend>
+          <div className="grid grid-cols-2 gap-2" role="radiogroup">
             {FREQUENCIES.map((f) => {
               const selected = draft.reminderFrequency === f.value;
               return (
@@ -132,9 +142,9 @@ function SettingsForm({
                   role="radio"
                   aria-checked={selected}
                   onClick={() => update('reminderFrequency', f.value)}
-                  className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                  className={`min-h-14 rounded-xl border px-3 py-2.5 text-left transition ${
                     selected
-                      ? 'border-sky-400/60 bg-sky-400/10 text-sky-100'
+                      ? 'border-sky-400 bg-sky-500/15 text-sky-100'
                       : 'border-white/10 text-slate-300 hover:border-white/20'
                   }`}
                 >
@@ -219,7 +229,7 @@ function SettingsForm({
       </Panel>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <button type="submit" disabled={saving} className={primaryButtonClass}>
+        <button type="submit" disabled={saving} className={`${primaryButtonClass} min-h-12 px-6`}>
           {saving ? 'Saving…' : 'Save settings'}
         </button>
         {message && (

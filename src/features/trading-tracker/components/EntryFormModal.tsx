@@ -31,13 +31,13 @@ const TYPE_OPTIONS: { value: EntryType; title: string; subtitle: string; active:
     value: 'payout',
     title: 'Payout',
     subtitle: 'Money in',
-    active: 'border-emerald-400/60 bg-emerald-400/10 text-emerald-200',
+    active: 'border-emerald-400 bg-emerald-500/15 text-gain',
   },
   {
     value: 'fee',
     title: 'Eval fee',
     subtitle: 'Money out',
-    active: 'border-rose-400/60 bg-rose-400/10 text-rose-200',
+    active: 'border-rose-400 bg-rose-500/15 text-loss',
   },
 ];
 
@@ -83,7 +83,7 @@ function EntryForm({
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       <fieldset>
-        <legend className="mb-1.5 text-xs font-medium text-slate-400">Type</legend>
+        <legend className="mb-1.5 text-xs font-medium text-muted">Type</legend>
         <div className="grid grid-cols-2 gap-2" role="radiogroup">
           {TYPE_OPTIONS.map((opt) => {
             const selected = type === opt.value;
@@ -94,8 +94,8 @@ function EntryForm({
                 role="radio"
                 aria-checked={selected}
                 onClick={() => setType(opt.value)}
-                className={`rounded-xl border px-3 py-2.5 text-left transition focus-visible:ring-2 focus-visible:ring-sky-400/40 focus-visible:outline-none ${
-                  selected ? opt.active : 'border-white/10 text-slate-300 hover:border-white/20'
+                className={`rounded-xl border px-3 py-2.5 text-left transition focus-visible:ring-2 focus-visible:ring-cyan-400/40 focus-visible:outline-none ${
+                  selected ? opt.active : 'border-line text-muted bg-hover'
                 }`}
               >
                 <span className="block text-sm font-semibold">{opt.title}</span>

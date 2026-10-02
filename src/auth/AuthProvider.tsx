@@ -7,6 +7,8 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   signInWithGoogle: (redirectPath?: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<{ needsConfirmation: boolean }>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -41,14 +43,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   }, []);
 
+  const signUpWithEmail = useCallback(async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/trading` },
+    });
+    if (error) throw error;
+    // When email confirmation is required, session is null until they click the link.
+    return { needsConfirmation: !data.session };
+  }, []);
+
+  const signInWithEmail = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) throw error;
+  }, []);
+
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }, []);
 
   const value = useMemo<AuthState>(
-    () => ({ session, user: session?.user ?? null, loading, signInWithGoogle, signOut }),
-    [session, loading, signInWithGoogle, signOut],
+    () => ({
+      session,
+      user: session?.user ?? null,
+      loading,
+      signInWithGoogle,
+      signUpWithEmail,
+      signInWithEmail,
+      signOut,
+    }),
+    [session, loading, signInWithGoogle, signUpWithEmail, signInWithEmail, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,8 +1,10 @@
 node_modules
 dist
+.env
 .env.local
 .env.*.local
 *.log
+build-out.txt
 .vercel
 supabase/.temp
 supabase/.branches

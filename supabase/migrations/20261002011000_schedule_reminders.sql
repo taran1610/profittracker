@@ -10,7 +10,7 @@ select vault.create_secret(
 where not exists (select 1 from vault.secrets where name = 'reminder_cron_secret');
 
 select vault.create_secret(
-  'https://pliohalfyxwuepohdmdi.supabase.co',
+  'https://adnqpjsdozyybnachvjh.supabase.co',
   'project_url',
   'Base URL for invoking Edge Functions from pg_cron'
 )

@@ -51,8 +51,8 @@ export function MonthlyChart({ months }: { months: MonthBucket[] }) {
 
   if (months.length === 0) {
     return (
-      <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-500">
-        Add an entry to see your monthly breakdown.
+      <div className="flex min-h-48 items-center justify-center rounded-xl border border-dashed border-line px-4 py-12 text-center text-sm text-subtle">
+        Add an entry to see your monthly chart.
       </div>
     );
   }

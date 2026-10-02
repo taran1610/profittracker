@@ -35,24 +35,25 @@ export function Modal({ open, title, description, onClose, children }: ModalProp
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-hidden />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl border border-white/[0.08] bg-[#0b1220] p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl shadow-black/60 sm:max-w-md sm:rounded-2xl sm:p-6"
+        className="relative max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl border border-line bg-panel p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:max-w-md sm:rounded-2xl sm:p-6"
+        style={{ boxShadow: '0 25px 50px var(--shadow)' }}
       >
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <h2 id={titleId} className="text-base font-semibold text-white">
+            <h2 id={titleId} className="text-base font-semibold text-fg">
               {title}
             </h2>
-            {description && <p className="mt-1 text-sm text-slate-400">{description}</p>}
+            {description && <p className="mt-1 text-sm text-muted">{description}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="-m-1 rounded-lg p-1.5 text-slate-400 transition hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:outline-none"
+            className="-m-1 rounded-lg p-1.5 text-muted transition bg-hover focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:outline-none"
             aria-label="Close"
           >
             <XIcon />
