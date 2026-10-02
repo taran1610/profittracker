@@ -7,13 +7,14 @@ const OPTIONS: { value: ThemeMode; label: string; icon: typeof SunIcon }[] = [
   { value: 'system', label: 'System', icon: MonitorIcon },
 ];
 
-/** Compact cycle button for the top nav. */
+/** Compact cycle button for the top nav. Starts on Light by default. */
 export function ThemeCycleButton() {
   const { mode, resolved, setMode } = useTheme();
 
   const cycle = () => {
     const order: ThemeMode[] = ['light', 'dark', 'system'];
-    const next = order[(order.indexOf(mode) + 1) % order.length];
+    const idx = order.indexOf(mode);
+    const next = order[idx < 0 ? 0 : (idx + 1) % order.length];
     setMode(next);
   };
 

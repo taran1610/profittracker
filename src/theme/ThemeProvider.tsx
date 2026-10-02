@@ -28,7 +28,7 @@ function readStoredMode(): ThemeMode {
   } catch {
     // ignore
   }
-  return 'system';
+  return 'light';
 }
 
 function systemPrefersDark(): boolean {
@@ -50,10 +50,10 @@ function applyTheme(resolved: ResolvedTheme) {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>(() =>
-    typeof window === 'undefined' ? 'system' : readStoredMode(),
+    typeof window === 'undefined' ? 'light' : readStoredMode(),
   );
   const [resolved, setResolved] = useState<ResolvedTheme>(() =>
-    typeof window === 'undefined' ? 'dark' : resolveMode(readStoredMode()),
+    typeof window === 'undefined' ? 'light' : resolveMode(readStoredMode()),
   );
 
   useEffect(() => {
